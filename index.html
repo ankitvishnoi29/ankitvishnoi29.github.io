@@ -1,1788 +1,3801 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8" />
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>ANKIT VISHNOI — AEROSPACE STRUCTURAL ANALYST</title>
 
+
+
 <!-- Fonts: Orbitron (display, HUD), Rajdhani (body), JetBrains Mono (data) -->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
+
+
 <!-- FontAwesome -->
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+
+
 <style>
+
 :root{
+
   --bg-0:#04060c;
+
   --bg-1:#080c16;
+
   --bg-2:#0d1220;
+
   --bg-3:#131a2c;
+
   --bg-4:#1a2238;
+
   --line:#1f2940;
+
   --line-2:#2a3656;
+
   --line-bright:#3b4a72;
+
   --txt:#e6edf7;
+
   --txt-2:#9aa6c2;
+
   --txt-3:#5e6a89;
+
   --cyan:#00e5ff;
+
   --cyan-2:#0bd0e6;
+
   --cyan-glow:rgba(0,229,255,.35);
+
   --amber:#ffb020;
+
   --alert:#ff3860;
+
   --ok:#00ff9d;
 
+
+
   --font-display:'Orbitron', sans-serif;
+
   --font-body:'Rajdhani', sans-serif;
+
   --font-mono:'JetBrains Mono', monospace;
+
 }
+
+
 
 *{box-sizing:border-box;margin:0;padding:0}
+
 html{scroll-behavior:smooth}
 
+
+
 body{
+
   font-family:var(--font-body);
+
   background:var(--bg-0);
+
   color:var(--txt);
+
   line-height:1.55;
+
   overflow-x:hidden;
+
   position:relative;
+
   min-height:100vh;
+
 }
+
+
 
 /* ====== ATMOSPHERIC BACKGROUND LAYERS ====== */
+
 .bg-grid{
+
   position:fixed;inset:0;z-index:-3;pointer-events:none;
+
   background-image:
+
     linear-gradient(rgba(31,41,64,.6) 1px, transparent 1px),
+
     linear-gradient(90deg, rgba(31,41,64,.6) 1px, transparent 1px);
+
   background-size: 80px 80px;
+
   mask-image: radial-gradient(ellipse at 50% 40%, black 0%, black 40%, transparent 85%);
+
   -webkit-mask-image: radial-gradient(ellipse at 50% 40%, black 0%, black 40%, transparent 85%);
+
   opacity:.55;
+
 }
+
 .bg-hex{
+
   position:fixed;inset:0;z-index:-4;pointer-events:none;
+
   background:
+
     radial-gradient(circle at 20% 15%, rgba(0,229,255,.07), transparent 35%),
+
     radial-gradient(circle at 85% 70%, rgba(255,176,32,.05), transparent 40%),
+
     radial-gradient(circle at 50% 100%, rgba(255,56,96,.04), transparent 40%),
+
     var(--bg-0);
+
 }
+
 .bg-noise{
+
   position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.04;
+
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='3'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.7'/></svg>");
+
 }
+
 .scanlines{
+
   position:fixed;inset:0;z-index:1;pointer-events:none;
+
   background:repeating-linear-gradient(0deg, rgba(0,229,255,.02) 0 1px, transparent 1px 4px);
+
   mix-blend-mode:screen;opacity:.6;
+
 }
+
+
 
 /* ====== FLYING OBJECTS LAYER ====== */
+
 .sky{
+
   position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;
+
 }
+
 .flyer{position:absolute;will-change:transform;}
+
 .uav-1{ top:18%; left:-220px; animation: glide1 26s linear infinite; }
+
 .uav-2{ top:62%; left:-220px; animation: glide2 38s linear infinite; animation-delay:-12s;}
+
 .missile-1{ top:42%; left:-280px; animation: launch1 22s linear infinite; animation-delay:-6s;}
+
 .missile-2{ top:78%; left:-280px; animation: launch2 30s linear infinite; animation-delay:-18s;}
 
+
+
 @keyframes glide1{
+
   0%{transform:translate(0,0) rotate(-2deg);}
+
   50%{transform:translate(55vw,-30px) rotate(-2deg);}
+
   100%{transform:translate(110vw,10px) rotate(-2deg);}
+
 }
+
 @keyframes glide2{
+
   0%{transform:translate(0,0) rotate(3deg) scale(.85);}
+
   50%{transform:translate(50vw,40px) rotate(3deg) scale(.85);}
+
   100%{transform:translate(110vw,-20px) rotate(3deg) scale(.85);}
+
 }
+
 @keyframes launch1{
+
   0%{transform:translate(0,0) rotate(-8deg) scale(.9);}
+
   100%{transform:translate(120vw,-80px) rotate(-8deg) scale(.9);}
+
 }
+
 @keyframes launch2{
+
   0%{transform:translate(0,0) rotate(-4deg) scale(.7); opacity:.7;}
+
   100%{transform:translate(120vw,-40px) rotate(-4deg) scale(.7); opacity:.7;}
+
 }
+
+
 
 /* glowing particles */
+
 .particle{position:absolute;width:2px;height:2px;background:var(--cyan);border-radius:50%;box-shadow:0 0 6px var(--cyan);opacity:.6;}
 
+
+
 /* ====== NAVIGATION ====== */
+
 nav.topbar{
+
   position:sticky;top:0;z-index:100;
+
   display:flex;align-items:center;justify-content:space-between;
+
   padding:14px 36px;
+
   background:rgba(8,12,22,.75);
+
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+
   border-bottom:1px solid var(--line);
-}
-nav.topbar::before{
-  content:"";position:absolute;left:0;bottom:-1px;height:1px;width:100%;
-  background:linear-gradient(90deg, transparent, var(--cyan), transparent);
-  opacity:.5;
+
 }
 
-/* MISSILE NAV ANIMATION */
-.nav-missile-container {
-  position: absolute; top: 0%; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+nav.topbar::before{
+
+  content:"";position:absolute;left:0;bottom:-1px;height:1px;width:100%;
+
+  background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+
+  opacity:.5;
+
 }
+
+
+
+/* MISSILE NAV ANIMATION */
+
+.nav-missile-container {
+
+  position: absolute; top: 0%; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+
+}
+
 .nav-content-wrap { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; width: 100%; }
+
+
 
 .missile-body, .missile-piece, .impact-flash { position: absolute; top: 90%; left: 0px; transform: translateY(-50%); }
 
+
+
 .missile-body { animation: missileBodyAnim 15s infinite linear; }
+
 .missile-piece { opacity: 0; animation: missilePieceAnim 15s infinite linear; }
+
 .impact-flash {
+
   width: 30px; height: 30px; background: #ffb020; border-radius: 50%; opacity: 0;
+
   box-shadow: 0 0 40px 15px #ff3860;
+
   animation: flashAnim 15s infinite linear;
+
 }
+
+
+
+/* Update these inside your <style> tag */
 
 @keyframes missileBodyAnim {
+
   0% { left: -100px; transform: translateY(-50%) rotate(0deg); opacity: 1; }
+
   45% { left: calc(100% - 160px); transform: translateY(-50%) rotate(0deg); opacity: 1; }
+
   49% { left: calc(100% - 100px); transform: translateY(-50%) rotate(0deg); opacity: 0; }
+
   100% { left: -100px; opacity: 0; }
+
 }
+
+
 
 @keyframes missilePieceAnim {
+
   0%, 44% { left: -100px; opacity: 0; }
+
   45% { left: calc(100% - 150px); transform: translateY(-50%) rotate(0deg); opacity: 1; }
+
   49% { left: 100%; transform: translateY(-50%) rotate(15deg); opacity: 0; }
+
   100% { opacity: 0; }
+
 }
+
 @keyframes flashAnim {
+
   0%, 44% { left: calc(100% - 150px); opacity: 0; transform: scale(0); }
+
   45% { left: calc(100% - 150px); opacity: 1; transform: scale(1.5); }
+
   46%, 100% { left: calc(100% - 150px); opacity: 0; transform: scale(0); }
+
 }
+
+
 
 .brand{display:flex;align-items:center;gap:14px;}
+
 .brand-logo{
+
   width:42px;height:42px;display:grid;place-items:center;
+
   border:1px solid var(--line-bright);border-radius:6px;
+
   background:linear-gradient(135deg, var(--bg-3), var(--bg-2));
+
   box-shadow:inset 0 0 12px rgba(0,229,255,.15);
+
+  flex-shrink:0;
+
 }
+
 .brand-logo svg{width:24px;height:24px;}
+
 .brand-text{display:flex;flex-direction:column;line-height:1;}
+
 .brand-name{font-family:var(--font-display);font-weight:900;font-size:1.05rem;letter-spacing:.18em;}
+
 .brand-name span{color:var(--cyan);}
+
 .brand-role{font-family:var(--font-mono);font-size:.68rem;color:var(--txt-3);margin-top:4px;letter-spacing:.15em;text-transform:uppercase;}
 
+
+
 .nav-links{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+
 .nav-links a{
+
   font-family:var(--font-mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+
   color:var(--txt-2);text-decoration:none;padding:8px 12px;border-radius:4px;
+
   transition:.25s;position:relative;
+
 }
+
 .nav-links a:hover{color:var(--cyan);background:rgba(0,229,255,.06);}
 
+
+
 .hire-btn{
+
   font-family:var(--font-mono);font-size:.74rem;letter-spacing:.2em;font-weight:700;
+
   text-transform:uppercase;color:var(--bg-0);background:var(--cyan);
+
   border:none;padding:11px 22px;border-radius:4px;cursor:pointer;
+
   text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+
   box-shadow:0 0 0 1px var(--cyan), 0 0 24px var(--cyan-glow);
+
   transition:.25s;
+
   /* Sync shake with impact frame */
+
   animation: btnShake 7s infinite linear;
+
+  flex-shrink:0;
+
+  white-space:nowrap;
+
 }
+
 .hire-btn:hover{background:var(--cyan-2);transform:translateY(-1px);box-shadow:0 0 0 1px var(--cyan-2), 0 0 36px var(--cyan-glow);}
+
 .hire-btn .dot{width:6px;height:6px;border-radius:50%;background:var(--bg-0);animation:pulse 1.4s infinite;}
 
+
+
 @keyframes btnShake {
+
   0%, 44.5% { transform: translateY(0); }
+
   45% { transform: translate(-4px, 2px) rotate(-3deg); }
+
   45.5% { transform: translate(4px, -2px) rotate(3deg); }
+
   46% { transform: translate(-2px, 1px) rotate(-1deg); }
+
   46.5%, 100% { transform: translateY(0); }
+
 }
+
+
 
 @keyframes pulse{
+
   0%,100%{opacity:1;transform:scale(1);}
+
   50%{opacity:.4;transform:scale(.7);}
+
 }
+
+
 
 /* ====== STATUS BAR ====== */
+
 .status-strip{
+
   display:flex;justify-content:space-between;align-items:center;
+
   padding:8px 36px;background:var(--bg-1);
+
   border-bottom:1px solid var(--line);
+
   font-family:var(--font-mono);font-size:.7rem;
+
   color:var(--txt-3);letter-spacing:.12em;text-transform:uppercase;
+
 }
+
 .status-strip .live{color:var(--ok);}
+
 .status-strip .live::before{content:"●";margin-right:6px;animation:blink 1.6s infinite;}
+
 @keyframes blink{50%{opacity:.25}}
 
+
+
 /* ====== CONTAINER ====== */
+
 .container{max-width:1280px;margin:0 auto;padding:40px 28px 80px;position:relative;z-index:2;}
 
+
+
 /* ====== SECTION LABEL ====== */
+
 .section-label{
+
   display:flex;align-items:center;gap:14px;margin-bottom:18px;
+
+  flex-wrap:wrap;
+
 }
+
 .section-label .num{
+
   font-family:var(--font-mono);font-size:.78rem;color:var(--cyan);
+
   letter-spacing:.2em;padding:4px 10px;border:1px solid var(--cyan);border-radius:3px;
+
 }
+
 .section-label .tag{
+
   font-family:var(--font-mono);font-size:.72rem;color:var(--txt-3);
+
   letter-spacing:.25em;text-transform:uppercase;
+
 }
-.section-label .line{flex:1;height:1px;background:linear-gradient(90deg, var(--line-2), transparent);}
+
+.section-label .line{flex:1;height:1px;background:linear-gradient(90deg, var(--line-2), transparent);min-width:40px;}
+
+
 
 .section-title{
+
   font-family:var(--font-display);font-weight:900;
+
   font-size:clamp(2rem, 5vw, 3.4rem);letter-spacing:.04em;
+
   line-height:1.05;margin-bottom:12px;
+
 }
+
 .section-title em{font-style:normal;color:var(--cyan);font-weight:900;}
+
 .section-sub{
+
   font-family:var(--font-body);font-size:1.05rem;color:var(--txt-2);
+
   max-width:720px;margin-bottom:48px;
+
 }
+
+
 
 /* ====== HERO ====== */
+
 .hero{
+
   position:relative;display:grid;grid-template-columns:1.05fr .95fr;
+
   gap:48px;align-items:center;padding:60px 0 80px;min-height:80vh;
+
 }
+
 .hero::before{
+
   content:"";position:absolute;inset:-40px -200px -40px -200px;
+
   background:radial-gradient(ellipse at center, rgba(0,229,255,.06), transparent 60%);
+
   z-index:-1;pointer-events:none;
+
 }
+
 .hero-left h1{
+
   font-family:var(--font-display);font-weight:900;
+
   font-size:clamp(2.4rem, 6vw, 4.2rem);
+
   line-height:1;letter-spacing:.02em;margin-bottom:18px;
+
 }
+
 .hero-left h1 .glow{
+
   background:linear-gradient(180deg,#fff, #6df1ff 70%, #00aabb);
+
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+
   filter:drop-shadow(0 0 24px rgba(0,229,255,.25));
+
 }
+
 .hero-pretitle{
+
   display:inline-flex;align-items:center;gap:10px;
+
   font-family:var(--font-mono);font-size:.78rem;color:var(--cyan);
+
   letter-spacing:.3em;text-transform:uppercase;margin-bottom:24px;
+
   padding:6px 12px;border:1px solid var(--cyan);border-radius:3px;
+
   background:rgba(0,229,255,.06);
+
 }
+
 .hero-pretitle .dot{width:6px;height:6px;background:var(--cyan);border-radius:50%;box-shadow:0 0 8px var(--cyan);animation:pulse 1.6s infinite;}
 
+
+
 .hero-sub{
+
   font-size:1.1rem;color:var(--txt-2);max-width:560px;margin-bottom:28px;
+
 }
+
 .hero-meta{
+
   display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px;max-width:540px;
+
 }
+
 .hero-meta .item{
+
   border-left:2px solid var(--cyan);padding:6px 12px;background:rgba(13,18,32,.5);
+
 }
+
 .hero-meta .k{font-family:var(--font-mono);font-size:.66rem;color:var(--txt-3);letter-spacing:.18em;text-transform:uppercase;}
+
 .hero-meta .v{font-family:var(--font-display);font-size:.95rem;font-weight:700;color:var(--txt);margin-top:2px;}
 
+
+
 .hero-cta{display:flex;gap:14px;flex-wrap:wrap;}
+
 .cta-primary, .cta-ghost{
+
   font-family:var(--font-mono);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+
   padding:14px 24px;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:10px;
+
   transition:.25s;cursor:pointer;
+
 }
+
 .cta-primary{background:var(--cyan);color:var(--bg-0);box-shadow:0 0 24px var(--cyan-glow);}
+
 .cta-primary:hover{background:var(--cyan-2);transform:translateY(-2px);}
+
 .cta-ghost{background:transparent;color:var(--txt);border:1px solid var(--line-bright);}
+
 .cta-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
 
+
+
 /* HERO RIGHT — HUD PANEL */
+
 .hud-panel{
+
   position:relative;aspect-ratio:1/1;max-width:520px;margin-left:auto;
+
   border:1px solid var(--line-2);border-radius:8px;
+
   background:
+
     radial-gradient(circle at center, rgba(0,229,255,.05), transparent 65%),
+
     linear-gradient(135deg, var(--bg-2), var(--bg-1));
+
   padding:24px;overflow:hidden;
+
   box-shadow:inset 0 0 60px rgba(0,229,255,.08), 0 20px 60px rgba(0,0,0,.6);
+
+  width:100%;
+
 }
+
 .hud-corners::before, .hud-corners::after,
+
 .hud-corners-2::before, .hud-corners-2::after{
+
   content:"";position:absolute;width:22px;height:22px;border:2px solid var(--cyan);
+
 }
+
 .hud-corners::before{top:10px;left:10px;border-right:none;border-bottom:none;}
+
 .hud-corners::after{top:10px;right:10px;border-left:none;border-bottom:none;}
+
 .hud-corners-2::before{bottom:10px;left:10px;border-right:none;border-top:none;}
+
 .hud-corners-2::after{bottom:10px;right:10px;border-left:none;border-top:none;}
 
+
+
 .hud-top{
+
   display:flex;justify-content:space-between;align-items:center;
+
   font-family:var(--font-mono);font-size:.66rem;color:var(--txt-3);letter-spacing:.18em;text-transform:uppercase;
+
   margin-bottom:14px;
+
 }
+
 .hud-top .live{color:var(--ok);}
+
 .hud-top .live::before{content:"●";margin-right:5px;animation:blink 1.6s infinite;}
 
+
+
 .radar-wrap{
+
   position:relative;width:100%;aspect-ratio:1/1;border-radius:50%;
+
   background:radial-gradient(circle, rgba(0,229,255,.05), transparent 70%);
+
   display:grid;place-items:center;
+
 }
+
 .radar-wrap svg{width:100%;height:100%;display:block;}
+
 .radar-sweep{
+
   position:absolute;inset:0;border-radius:50%;
+
   background:conic-gradient(from 0deg, transparent 0deg, rgba(0,229,255,.5) 30deg, transparent 60deg);
+
   animation:sweep 4s linear infinite;
+
   mask: radial-gradient(circle, transparent 0%, black 0%, black 50%, transparent 50%);
-  -webkit-mask: radial-gradient(circle, transparent 0%, black 0%, black 50%, transparent 50%);
+
 }
+
 @keyframes sweep{to{transform:rotate(360deg);}}
 
+
+
 .profile-frame{
+
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+
   width:48%;aspect-ratio:1/1;border-radius:50%;
+
   overflow:hidden;border:2px solid var(--cyan);
+
   box-shadow:0 0 30px var(--cyan-glow), inset 0 0 30px rgba(0,229,255,.15);
+
 }
+
 .profile-frame img{width:100%;height:100%;object-fit:cover;filter:contrast(1.05) brightness(.95);}
 
+
+
 .hud-readout{
+
   position:absolute;font-family:var(--font-mono);font-size:.62rem;color:var(--cyan);
+
   letter-spacing:.15em;text-transform:uppercase;
+
   background:rgba(8,12,22,.7);padding:5px 9px;border:1px solid var(--cyan);border-radius:3px;
+
   backdrop-filter:blur(6px);
+
 }
+
 .hud-readout.r1{top:18%;left:8%;}
+
 .hud-readout.r2{bottom:18%;right:8%;}
+
 .hud-readout.r3{top:50%;right:4%;transform:translateY(-50%);}
 
+
+
 .hud-bottom{
+
   position:absolute;bottom:18px;left:24px;right:24px;
+
   display:flex;justify-content:space-between;
+
   font-family:var(--font-mono);font-size:.62rem;color:var(--txt-3);letter-spacing:.15em;text-transform:uppercase;
+
 }
+
 .hud-bottom .val{color:var(--cyan);}
 
+
+
 /* ====== STATS ====== */
+
 .stats{
+
   display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+
   margin-top:36px;
+
 }
+
 .stat{
+
   position:relative;padding:24px 22px;border:1px solid var(--line);
+
   background:linear-gradient(180deg, var(--bg-2), var(--bg-1));border-radius:6px;
+
   overflow:hidden;transition:.3s;
+
 }
+
 .stat::before{
+
   content:"";position:absolute;top:0;left:0;width:100%;height:2px;
+
   background:linear-gradient(90deg, var(--cyan), transparent);
+
 }
+
 .stat::after{
+
   content:"";position:absolute;top:8px;right:10px;width:10px;height:10px;
+
   border:1px solid var(--cyan);border-radius:50%;
+
   box-shadow:0 0 8px var(--cyan-glow);
+
 }
+
 .stat:hover{border-color:var(--cyan);transform:translateY(-3px);}
+
 .stat .num{
+
   font-family:var(--font-display);font-weight:900;font-size:2.6rem;
+
   color:var(--cyan);line-height:1;letter-spacing:.02em;
+
 }
+
 .stat .lbl{
+
   font-family:var(--font-mono);font-size:.7rem;color:var(--txt-2);
+
   letter-spacing:.18em;text-transform:uppercase;margin-top:8px;
+
 }
+
 .stat .id{
+
   position:absolute;bottom:8px;right:10px;
+
   font-family:var(--font-mono);font-size:.6rem;color:var(--txt-3);letter-spacing:.15em;
+
 }
+
+
 
 /* ====== SECTION ====== */
+
 section{padding:80px 0;position:relative;}
+
 section + section{border-top:1px solid var(--line);}
 
+
+
 /* ====== CAPABILITIES GRID ====== */
+
 .cap-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:18px;}
+
 .cap-card{
+
   position:relative;border:1px solid var(--line);background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+
   border-radius:6px;overflow:hidden;transition:.3s;
+
 }
+
 .cap-card::before{
+
   content:"";position:absolute;top:0;left:0;height:100%;width:3px;
+
   background:linear-gradient(180deg, var(--cyan), transparent);opacity:.6;
+
 }
+
 .cap-card:hover{border-color:var(--cyan);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,229,255,.1);}
+
 .cap-img{
+
   position:relative;height:170px;overflow:hidden;
+
   border-bottom:1px solid var(--line);
+
 }
+
 .cap-img img{
+
   width:100%;height:100%;object-fit:cover;
+
   filter:grayscale(.3) contrast(1.1) brightness(.7);
+
   transition:.5s;
+
 }
+
 .cap-card:hover .cap-img img{filter:grayscale(0) contrast(1.05) brightness(.85);transform:scale(1.05);}
+
 .cap-img::after{
+
   content:"";position:absolute;inset:0;
+
   background:linear-gradient(180deg, transparent 40%, rgba(8,12,22,.85));
+
   pointer-events:none;
+
 }
+
 .cap-img .badge{
+
   position:absolute;top:10px;left:10px;font-family:var(--font-mono);font-size:.62rem;
+
   color:var(--cyan);background:rgba(8,12,22,.75);border:1px solid var(--cyan);
+
   padding:3px 8px;border-radius:3px;letter-spacing:.2em;text-transform:uppercase;
+
   z-index:2;
+
 }
+
 .cap-body{padding:18px 20px 20px;}
+
 .cap-body h3{
+
   font-family:var(--font-display);font-weight:700;font-size:1rem;
+
   letter-spacing:.05em;margin-bottom:12px;color:var(--txt);
+
 }
+
 .tags{display:flex;flex-wrap:wrap;gap:6px;}
+
 .tag{
+
   font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;
+
   padding:4px 8px;border:1px solid var(--line-2);color:var(--txt-2);
+
   border-radius:3px;background:rgba(0,229,255,.03);
+
 }
+
 .tag.more{color:var(--cyan);border-color:var(--cyan);}
 
+
+
 /* ====== EXPERIENCE TIMELINE ====== */
+
 .timeline{position:relative;max-width:980px;margin:0 auto;}
+
 .timeline::before{
+
   content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;
+
   background:linear-gradient(180deg, transparent, var(--cyan) 8%, var(--cyan) 92%, transparent);
+
   opacity:.6;
+
 }
+
 .tl-item{
+
   position:relative;width:50%;padding:24px 40px;
+
 }
+
 .tl-item.left{left:0;text-align:right;}
+
 .tl-item.right{left:50%;}
+
 .tl-item::before{
+
   content:"";position:absolute;top:32px;width:14px;height:14px;border-radius:50%;
+
   background:var(--bg-0);border:2px solid var(--cyan);
+
   box-shadow:0 0 0 4px var(--bg-0), 0 0 16px var(--cyan-glow);
+
 }
+
 .tl-item.left::before{right:-7px;}
+
 .tl-item.right::before{left:-7px;}
+
 .tl-item::after{
+
   content:"";position:absolute;top:38px;height:2px;width:30px;
+
   background:linear-gradient(90deg, var(--cyan), transparent);
+
 }
+
 .tl-item.left::after{right:8px;}
+
 .tl-item.right::after{left:8px;background:linear-gradient(-90deg, var(--cyan), transparent);}
 
+
+
 .tl-card{
+
   position:relative;padding:22px 24px;border:1px solid var(--line);
+
   background:linear-gradient(180deg, var(--bg-2), var(--bg-1));border-radius:6px;
+
   transition:.3s;text-align:left;
+
   cursor: default;
+
 }
+
 .tl-card:hover{border-color:var(--cyan);box-shadow:0 8px 30px rgba(0,229,255,.08);transform:translateY(-2px);}
+
 .tl-id{
+
   font-family:var(--font-mono);font-size:.62rem;color:var(--cyan);
+
   letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;
+
 }
+
 .tl-card h3{
+
   font-family:var(--font-display);font-weight:700;font-size:1.1rem;
+
   letter-spacing:.03em;margin-bottom:4px;color:var(--txt);
+
 }
+
 .tl-org{
+
   font-family:var(--font-body);font-weight:600;font-size:1rem;color:var(--cyan);
+
   margin-bottom:10px;
+
 }
+
 .tl-meta{
+
   font-family:var(--font-mono);font-size:.7rem;color:var(--txt-3);
+
   letter-spacing:.12em;text-transform:uppercase;
+
   padding:4px 10px;background:rgba(13,18,32,.6);border-left:2px solid var(--amber);
+
   display:inline-block;margin-bottom:0;
+
 }
+
+
 
 /* Timeline Expandable Details */
+
 .tl-card ul{
+
   list-style:none;
+
   padding:0;
+
   margin:0;
+
   max-height: 0;
+
   opacity: 0;
+
   overflow: hidden;
+
   transition: all 0.5s ease-in-out;
+
 }
-.tl-card:hover ul{
+
+.tl-card:hover ul,
+
+.tl-card.open ul{
+
   max-height: 800px;
+
   opacity: 1;
+
   margin-top: 14px;
+
 }
+
+
 
 .tl-card li{
+
   position:relative;padding-left:18px;font-size:.95rem;color:var(--txt-2);
+
   margin-bottom:8px;line-height:1.5;
+
 }
+
 .tl-card li::before{
+
   content:"▸";position:absolute;left:0;top:0;color:var(--cyan);font-size:.85rem;
+
 }
+
+
 
 /* ====== EDUCATION HORIZONTAL ====== */
+
 .edu-grid{
+
   display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+
   position:relative;padding:60px 0 20px;
+
 }
+
 .edu-grid::before{
+
   content:"";position:absolute;top:38px;left:8%;right:8%;height:2px;
+
   background:linear-gradient(90deg, transparent, var(--cyan) 10%, var(--cyan) 90%, transparent);
+
   opacity:.5;
+
 }
+
 .edu-node{
+
   position:relative;text-align:center;
+
 }
+
 .edu-circle{
+
   width:48px;height:48px;border-radius:50%;margin:0 auto 22px;
+
   background:var(--bg-0);border:2px solid var(--cyan);
+
   display:grid;place-items:center;color:var(--cyan);
+
   font-family:var(--font-mono);font-weight:700;font-size:.85rem;
+
   box-shadow:0 0 0 6px var(--bg-0), 0 0 22px var(--cyan-glow);
+
   position:relative;z-index:2;
+
 }
+
 .edu-card{
+
   padding:22px 20px;border:1px solid var(--line);background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+
   border-radius:6px;transition:.3s;
+
 }
+
 .edu-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+
 .edu-card .lvl{
+
   font-family:var(--font-mono);font-size:.66rem;color:var(--cyan);
+
   letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;
+
 }
+
 .edu-card h3{
+
   font-family:var(--font-display);font-weight:700;font-size:1rem;
+
   letter-spacing:.04em;margin-bottom:6px;
+
 }
+
 .edu-card .field{color:var(--txt-2);font-size:.95rem;margin-bottom:8px;font-weight:500;}
+
 .edu-card .inst{color:var(--txt-3);font-size:.85rem;margin-bottom:12px;line-height:1.4;}
+
 .edu-card .yr{
+
   font-family:var(--font-mono);font-size:.72rem;color:var(--amber);
+
   letter-spacing:.15em;border:1px solid var(--amber);padding:3px 10px;border-radius:3px;
+
   display:inline-block;
+
 }
+
+
 
 /* ====== PROJECTS ====== */
+
 .proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:22px;}
+
 .proj-card{
+
   position:relative;border:1px solid var(--line);background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+
   border-radius:6px;overflow:hidden;transition:.3s;
+
 }
+
 .proj-card::before{
+
   content:"";position:absolute;top:0;left:0;right:0;height:2px;
+
   background:linear-gradient(90deg, var(--cyan), var(--amber), transparent);opacity:.7;
+
 }
+
 .proj-card:hover{border-color:var(--cyan);transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,229,255,.08);}
+
 .carousel{
+
   position:relative;height:210px;overflow:hidden;background:var(--bg-3);
+
   border-bottom:1px solid var(--line);
+
 }
+
 .slide{display:none;width:100%;height:100%;}
+
 .slide.active{display:block;}
+
 .slide img{width:100%;height:100%;object-fit:cover;filter:contrast(1.05) brightness(.85);}
+
 .car-btn{
+
   position:absolute;top:50%;transform:translateY(-50%);
+
   background:rgba(8,12,22,.8);color:var(--cyan);
+
   border:1px solid var(--cyan);width:34px;height:34px;border-radius:50%;
+
   cursor:pointer;font-size:.85rem;display:grid;place-items:center;
+
   transition:.2s;z-index:5;
+
 }
+
 .car-btn:hover{background:var(--cyan);color:var(--bg-0);}
+
 .car-btn.prev{left:10px;} .car-btn.next{right:10px;}
+
 .car-num{
+
   position:absolute;top:10px;right:10px;font-family:var(--font-mono);font-size:.62rem;
+
   color:var(--cyan);background:rgba(8,12,22,.75);border:1px solid var(--cyan);
+
   padding:3px 8px;border-radius:3px;letter-spacing:.15em;z-index:4;
+
 }
+
 .proj-body{padding:20px 22px 22px;}
+
 .proj-body h3{
+
   font-family:var(--font-display);font-weight:700;font-size:1.05rem;
+
   letter-spacing:.03em;margin-bottom:10px;color:var(--txt);
+
 }
+
 .proj-body ul{list-style:none;padding:0;margin:14px 0 0;}
+
 .proj-body li{
+
   position:relative;padding-left:18px;font-size:.92rem;color:var(--txt-2);
+
   margin-bottom:7px;line-height:1.5;
+
 }
+
 .proj-body li::before{content:"›";position:absolute;left:0;top:0;color:var(--cyan);font-weight:700;}
 
+
+
 /* ====== SKILLS ====== */
+
 .skill-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+
 .skill-card{
+
   position:relative;padding:24px;border:1px solid var(--line);
+
   background:linear-gradient(180deg, var(--bg-2), var(--bg-1));border-radius:6px;transition:.3s;
+
 }
+
 .skill-card:hover{border-color:var(--cyan);transform:translateY(-3px);}
+
 .skill-card h3{
+
   font-family:var(--font-display);font-weight:700;font-size:1rem;
+
   letter-spacing:.04em;margin-bottom:14px;display:flex;align-items:center;gap:10px;
+
 }
+
 .skill-card h3 i{color:var(--cyan);font-size:1.15rem;}
+
 .skill-card h3::after{
+
   content:"";flex:1;height:1px;background:linear-gradient(90deg, var(--line-2), transparent);
+
 }
+
+
 
 /* ====== CERTIFICATIONS ====== */
+
 .cert-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:22px;}
+
 .cert-card{
+
   border:1px solid var(--line);background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+
   border-radius:6px;padding:26px 26px 22px;position:relative;transition:.3s;
+
 }
+
 .cert-card::before{
+
   content:"";position:absolute;top:0;left:0;width:2px;height:100%;background:linear-gradient(180deg, var(--amber), transparent);
+
 }
+
 .cert-card:hover{border-color:var(--amber);transform:translateY(-3px);}
+
 .cert-card h3{
+
   font-family:var(--font-display);font-weight:700;font-size:1.05rem;
+
   letter-spacing:.04em;margin-bottom:18px;display:flex;align-items:center;gap:10px;
+
 }
+
 .cert-card h3 i{color:var(--amber);}
+
 .cert-list{list-style:none;padding:0;margin:0;}
+
 .cert-list li{
+
   position:relative;padding:11px 0 11px 22px;border-bottom:1px dashed var(--line);
+
 }
+
 .cert-list li:last-child{border-bottom:none;}
+
 .cert-list li::before{
+
   content:"⬡";position:absolute;left:0;top:11px;color:var(--cyan);font-size:.9rem;
+
 }
+
 .cert-list li strong{
+
   display:block;font-weight:600;color:var(--txt);font-size:.95rem;font-family:var(--font-body);
+
 }
+
 .cert-list li span{
+
   display:block;font-family:var(--font-mono);font-size:.7rem;color:var(--txt-3);
+
   letter-spacing:.12em;text-transform:uppercase;margin-top:3px;
+
 }
+
+
 
 /* ====== RESEARCH ====== */
+
 .research-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:22px;}
+
 .research-card{
+
   position:relative;padding:28px;border:1px solid var(--line);
+
   background:
+
     linear-gradient(135deg, rgba(0,229,255,.03), transparent 40%),
+
     linear-gradient(180deg, var(--bg-2), var(--bg-1));
+
   border-radius:6px;transition:.3s;overflow:hidden;
+
 }
+
 .research-card::after{
+
   content:"";position:absolute;top:0;right:0;width:60px;height:60px;
+
   background:linear-gradient(135deg, transparent 50%, rgba(0,229,255,.06) 50%);
+
 }
+
 .research-card:hover{border-color:var(--cyan);transform:translateY(-3px);}
+
 .research-card .ico{
+
   width:42px;height:42px;border-radius:6px;display:grid;place-items:center;
+
   background:rgba(0,229,255,.08);border:1px solid var(--cyan);color:var(--cyan);
+
   font-size:1.1rem;margin-bottom:16px;
+
 }
+
 .research-card h3{
+
   font-family:var(--font-display);font-weight:700;font-size:1rem;
+
   letter-spacing:.03em;line-height:1.4;margin-bottom:14px;color:var(--txt);
+
 }
+
 .research-card .journal{
+
   font-family:var(--font-mono);font-size:.72rem;color:var(--amber);
+
   letter-spacing:.12em;text-transform:uppercase;padding-top:14px;
+
   border-top:1px dashed var(--line);font-style:normal;
+
 }
+
+
 
 /* ====== CONTACT ====== */
+
 .contact-wrap{
+
   max-width:900px;margin:0 auto;position:relative;
+
   border:1px solid var(--line-bright);background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+
   border-radius:8px;padding:48px 44px;overflow:hidden;
+
 }
+
 .contact-wrap::before{
+
   content:"";position:absolute;top:0;left:0;width:100%;height:3px;
+
   background:linear-gradient(90deg, var(--cyan), var(--amber), var(--alert), var(--cyan));
+
   background-size:200% 100%;animation:bandshift 6s linear infinite;
+
 }
+
 @keyframes bandshift{to{background-position:200% 0;}}
 
+
+
 .contact-header{text-align:center;margin-bottom:34px;}
+
 .contact-header .term{
+
   font-family:var(--font-mono);font-size:.74rem;color:var(--cyan);
+
   letter-spacing:.3em;text-transform:uppercase;
+
   padding:6px 14px;border:1px solid var(--cyan);border-radius:3px;
+
   display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;
+
 }
+
 .contact-header .term .dot{width:6px;height:6px;background:var(--ok);border-radius:50%;animation:pulse 1.4s infinite;}
+
 .contact-header h2{
+
   font-family:var(--font-display);font-weight:900;font-size:clamp(1.8rem, 4vw, 2.8rem);
+
   letter-spacing:.04em;margin-bottom:12px;
+
 }
+
 .contact-header p{color:var(--txt-2);max-width:620px;margin:0 auto;}
 
+
+
 .contact-info{
+
   display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:18px;
+
   margin:28px 0 30px;
+
 }
+
 .contact-info .ci{
+
   padding:18px 20px;border:1px solid var(--line);background:rgba(13,18,32,.5);
+
   border-radius:6px;transition:.3s;
+
+  word-break:break-word;
+
 }
+
 .contact-info .ci:hover{border-color:var(--cyan);}
+
 .contact-info .ci i{color:var(--cyan);font-size:1.1rem;margin-bottom:8px;display:inline-block;}
+
 .contact-info .ci .lbl{font-family:var(--font-mono);font-size:.66rem;color:var(--txt-3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px;}
+
 .contact-info .ci .val{font-size:.95rem;color:var(--txt);}
+
 .contact-info .ci a{color:var(--txt);text-decoration:none;transition:.2s;}
+
 .contact-info .ci a:hover{color:var(--cyan);}
 
+
+
 /* PROPER LOGO SOCIALS */
-.social{display:flex;justify-content:center;gap:14px;margin-bottom:30px;}
+
+.social{display:flex;justify-content:center;gap:14px;margin-bottom:30px;flex-wrap:wrap;}
+
 .social a{
+
   width:48px;height:48px;display:grid;place-items:center;border-radius:6px;
+
   border:1px solid var(--line-bright);color:var(--txt-2);font-size:1.4rem;
+
   background:var(--bg-2);transition:.3s;text-decoration:none;
+
 }
+
 .social a.logo-linkedin { color: #0a66c2; border-color: #0a66c2; background: rgba(10, 102, 194, 0.1); }
+
 .social a.logo-linkedin:hover { color: #fff; background: #0a66c2; box-shadow: 0 0 20px rgba(10, 102, 194, 0.6); transform:translateY(-3px); }
 
+
+
 .social a.logo-github { color: #e6edf7; border-color: #e6edf7; background: rgba(255, 255, 255, 0.05); }
+
 .social a.logo-github:hover { color: #04060c; background: #e6edf7; box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); transform:translateY(-3px); }
 
+
+
 .social a.logo-email { color: #ea4335; border-color: #ea4335; background: rgba(234, 67, 53, 0.1); }
+
 .social a.logo-email:hover { color: #fff; background: #ea4335; box-shadow: 0 0 20px rgba(234, 67, 53, 0.6); transform:translateY(-3px); }
 
+
+
 .social a.logo-phone { color: #34a853; border-color: #34a853; background: rgba(52, 168, 83, 0.1); }
+
 .social a.logo-phone:hover { color: #fff; background: #34a853; box-shadow: 0 0 20px rgba(52, 168, 83, 0.6); transform:translateY(-3px); }
 
+
+
 .download-btn{
+
   display:flex;justify-content:center;
+
 }
+
 .download-btn a{
+
   font-family:var(--font-mono);letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+
   font-size:.82rem;padding:16px 36px;background:var(--cyan);color:var(--bg-0);
+
   border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:10px;
+
   box-shadow:0 0 28px var(--cyan-glow);transition:.25s;
+
+  text-align:center;
+
 }
+
 .download-btn a:hover{background:var(--cyan-2);transform:translateY(-2px);}
 
+
+
 /* ====== MODAL ====== */
+
 .modal{
+
   display:none;position:fixed;inset:0;z-index:200;background:rgba(4,6,12,.85);
+
   backdrop-filter:blur(8px);justify-content:center;align-items:center;
+
   opacity:0;transition:opacity .3s;
+
+  padding:20px;
+
 }
+
 .modal.show{display:flex;opacity:1;}
+
 .modal-box{
-  position:relative;max-width:520px;width:92%;
+
+  position:relative;max-width:520px;width:100%;
+
   background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+
   border:1px solid var(--cyan);border-radius:8px;padding:40px 36px;
+
   box-shadow:0 0 60px var(--cyan-glow);
+
   transform:translateY(-20px);transition:transform .3s;
+
+  max-height:90vh;overflow-y:auto;
+
 }
+
 .modal.show .modal-box{transform:translateY(0);}
+
 .modal-box::before{
+
   content:"";position:absolute;top:0;left:0;width:100%;height:3px;
+
   background:linear-gradient(90deg, var(--cyan), transparent);
+
 }
+
 .modal-close{
+
   position:absolute;top:14px;right:18px;font-size:1.6rem;color:var(--txt-3);
+
   cursor:pointer;background:none;border:none;line-height:1;transition:.2s;
+
 }
+
 .modal-close:hover{color:var(--cyan);}
+
 .modal-box h2{
+
   font-family:var(--font-display);font-weight:900;font-size:1.5rem;letter-spacing:.04em;
+
   margin-bottom:8px;
+
 }
+
 .modal-box .sub{font-family:var(--font-mono);font-size:.72rem;color:var(--cyan);letter-spacing:.2em;text-transform:uppercase;margin-bottom:18px;}
+
 .modal-box p{color:var(--txt-2);margin-bottom:22px;font-size:.95rem;}
 
+
+
 /* ====== FOOTER ====== */
+
 footer{
+
   border-top:1px solid var(--line);padding:30px 28px;text-align:center;
+
   font-family:var(--font-mono);font-size:.72rem;color:var(--txt-3);letter-spacing:.18em;text-transform:uppercase;
+
 }
+
 footer .br{color:var(--cyan);}
 
-/* ====== RESPONSIVE ====== */
+
+
+/* =================================================================== */
+
+/* ============= RESPONSIVE — TABLET, PHONE, SMALL PHONE ============= */
+
+/* =================================================================== */
+
+
+
+/* Large tablets / small laptops */
+
+@media (max-width: 1100px){
+
+  nav.topbar{padding:14px 24px;}
+
+  .status-strip{padding:8px 24px;}
+
+  .container{padding:36px 24px 70px;}
+
+  .nav-links a{padding:7px 10px;font-size:.7rem;letter-spacing:.15em;}
+
+}
+
+
+
+/* Tablet portrait — main mobile-style breakpoint */
+
 @media (max-width: 980px){
-  /* Ensures navigation elements properly stack and center vertically */
-  .nav-content-wrap {flex-direction:column;gap:16px;}
-  nav.topbar{padding:14px 20px;}
-  .nav-links{justify-content:center;}
-  .status-strip{padding:8px 18px;font-size:.62rem;flex-wrap:wrap;gap:8px;justify-content:center;text-align:center;}
-  
-  /* Centers the main hero text and removes weird gaps */
-  .hero{grid-template-columns:1fr;gap:40px;padding:40px 0;text-align:center;}
-  .hero-pretitle {margin: 0 auto 24px auto;}
-  .hero-sub {margin: 0 auto 28px auto;}
-  .hero-meta {margin: 0 auto 32px auto; text-align:left;}
-  .hero-cta {justify-content:center;}
-  .hud-panel{max-width:420px;margin:0 auto;}
-  
-  .stats{grid-template-columns:repeat(2,1fr);}
+
+  nav.topbar{flex-direction:column;gap:14px;padding:14px 20px;}
+
+  .nav-content-wrap{flex-direction:column;gap:14px;width:100%;}
+
+  .nav-missile-container{display:none;} /* prevent overflow when nav stacks vertically */
+
+  .hire-btn{animation:none;} /* the shake animation is keyed to the missile impact, hide together */
+
+  .brand{justify-content:center;}
+
+  .nav-links{justify-content:center;gap:4px;}
+
+  .status-strip{padding:8px 18px;font-size:.62rem;flex-wrap:wrap;gap:6px;justify-content:center;text-align:center;}
+
+  .hero{grid-template-columns:1fr;gap:36px;padding:30px 0 60px;min-height:auto;}
+
+  .hero-left{text-align:left;}
+
+  .hud-panel{max-width:440px;margin:0 auto;}
+
+  .stats{grid-template-columns:repeat(2,1fr);gap:14px;}
+
+  .stat .num{font-size:2.2rem;}
+
   .timeline::before{left:22px;}
-  .tl-item{width:100%;padding:24px 0 24px 50px;text-align:left !important;left:0 !important;}
+
+  .tl-item{width:100%;padding:24px 0 24px 60px;text-align:left !important;left:0 !important;}
+
   .tl-item::before{left:15px !important;right:auto !important;}
+
   .tl-item::after{left:30px !important;right:auto !important;}
-  
-  /* Forces Timeline details to permanently display on mobile (no hover available on phones) */
-  .tl-card ul { max-height: 1000px; opacity: 1; margin-top: 14px; overflow: visible; }
-  
-  .edu-grid{grid-template-columns:1fr;}
+
+  .edu-grid{grid-template-columns:1fr;gap:18px;padding:30px 0 20px;}
+
   .edu-grid::before{display:none;}
+
   .container{padding:24px 18px 60px;}
+
   .contact-wrap{padding:32px 22px;}
+
+  section{padding:60px 0;}
+
 }
+
+
+
+/* Phone — large */
+
+@media (max-width: 720px){
+
+  nav.topbar{padding:12px 14px;}
+
+  .brand-logo{width:38px;height:38px;}
+
+  .brand-logo svg{width:22px;height:22px;}
+
+  .brand-name{font-size:.95rem;letter-spacing:.15em;}
+
+  .brand-role{font-size:.62rem;}
+
+  /* Nav links become horizontally scrollable so all stay accessible */
+
+  .nav-links{
+
+    display:flex;flex-wrap:nowrap;overflow-x:auto;
+
+    width:100%;justify-content:flex-start;
+
+    padding:4px 2px;-webkit-overflow-scrolling:touch;
+
+    scrollbar-width:none;
+
+  }
+
+  .nav-links::-webkit-scrollbar{display:none;}
+
+  .nav-links a{flex:0 0 auto;white-space:nowrap;padding:7px 11px;font-size:.68rem;}
+
+  .hire-btn{padding:10px 20px;font-size:.7rem;}
+
+  .status-strip{font-size:.58rem;padding:8px 12px;letter-spacing:.08em;}
+
+  .hero-left h1{font-size:clamp(2rem, 9vw, 3rem);}
+
+  .hero-pretitle{font-size:.7rem;letter-spacing:.22em;}
+
+  .hero-sub{font-size:1rem;}
+
+  .hud-panel{max-width:360px;padding:20px;}
+
+  .hud-readout{font-size:.55rem;padding:4px 7px;}
+
+  .hud-top{font-size:.6rem;}
+
+  .hud-bottom{font-size:.55rem;left:18px;right:18px;bottom:14px;}
+
+  .cap-grid{grid-template-columns:1fr;}
+
+  .proj-grid{grid-template-columns:1fr;}
+
+  .skill-grid{grid-template-columns:1fr;}
+
+  .cert-grid{grid-template-columns:1fr;}
+
+  .research-grid{grid-template-columns:1fr;}
+
+  .tl-card{padding:18px 18px;}
+
+  .tl-card h3{font-size:1rem;}
+
+  .tl-org{font-size:.95rem;}
+
+  .section-title{font-size:clamp(1.7rem,6vw,2.4rem);}
+
+  .section-sub{font-size:.98rem;margin-bottom:32px;}
+
+  .section-label .tag{font-size:.66rem;letter-spacing:.18em;}
+
+  .contact-wrap{padding:28px 18px;}
+
+  .modal-box{padding:32px 22px;}
+
+  footer{padding:24px 16px;font-size:.65rem;letter-spacing:.12em;}
+
+}
+
+
+
+/* Phone — small (iPhone SE, small Android) */
+
 @media (max-width: 520px){
+
   .stats{grid-template-columns:1fr;}
+
   .hero-meta{grid-template-columns:1fr;}
-  
-  /* Prevents horizontal overflow on very small phones by forcing 1 column grids */
-  .cap-grid, .proj-grid, .skill-grid, .cert-grid, .research-grid { grid-template-columns: 1fr; }
-  .contact-info { grid-template-columns: 1fr; }
-  
-  /* Adjusts timeline spacing so lines don't get cut off on small screens */
-  .tl-item{padding: 24px 0 24px 40px;}
-  .tl-item::before {left: 5px !important;}
-  .tl-item::after {left: 20px !important; width: 15px;}
-  .timeline::before {left: 12px;}
-  .section-title {font-size: 2.2rem;}
+
+  .hero-cta{flex-direction:column;}
+
+  .hero-cta .cta-primary, .hero-cta .cta-ghost{justify-content:center;width:100%;}
+
+  .hud-panel{max-width:320px;padding:16px;}
+
+  .hud-corners::before, .hud-corners::after,
+
+  .hud-corners-2::before, .hud-corners-2::after{width:16px;height:16px;}
+
+  .stat{padding:20px 18px;}
+
+  .stat .num{font-size:2.4rem;}
+
+  .container{padding:20px 14px 50px;}
+
+  section{padding:50px 0;}
+
+  .timeline::before{left:18px;}
+
+  .tl-item{padding:20px 0 20px 50px;}
+
+  .tl-item::before{left:11px !important;}
+
+  .tl-item::after{left:26px !important;width:22px;}
+
+  .download-btn a{padding:14px 24px;font-size:.74rem;letter-spacing:.16em;}
+
+  .social a{width:44px;height:44px;font-size:1.25rem;}
+
 }
+
+
+
+/* Tiny screens */
+
+@media (max-width: 380px){
+
+  .container{padding:18px 12px 40px;}
+
+  .brand-name{font-size:.88rem;}
+
+  .nav-links a{padding:6px 9px;font-size:.64rem;}
+
+  .hero-left h1{font-size:1.9rem;}
+
+  .hud-readout{font-size:.5rem;padding:3px 5px;}
+
+  .hud-readout.r1{top:14%;left:6%;}
+
+  .hud-readout.r2{bottom:14%;right:6%;}
+
+  .modal-box{padding:26px 18px;}
+
+  .modal-box h2{font-size:1.3rem;}
+
+}
+
+
+
+/* Touch devices — show timeline details by default since hover doesn't exist */
+
+@media (hover: none) and (pointer: coarse){
+
+  .tl-card ul{max-height:1000px;opacity:1;margin-top:14px;}
+
+  .tl-card:hover{transform:none;}
+
+  .stat:hover,.cap-card:hover,.proj-card:hover,.skill-card:hover,
+
+  .cert-card:hover,.research-card:hover,.edu-card:hover{transform:none;}
+
+  .cap-card:hover .cap-img img{transform:none;}
+
+}
+
+
+
+/* Reduced motion accessibility */
+
+@media (prefers-reduced-motion: reduce){
+
+  *,*::before,*::after{
+
+    animation-duration:.01ms !important;
+
+    animation-iteration-count:1 !important;
+
+    transition-duration:.01ms !important;
+
+  }
+
+}
+
+
+
+/* Landscape phones — keep HUD smaller so hero fits */
+
+@media (max-height: 500px) and (orientation: landscape){
+
+  .hero{min-height:auto;padding:24px 0 40px;}
+
+  .hud-panel{max-width:280px;}
+
+}
+
 </style>
+
 </head>
+
 <body>
 
+
+
 <!-- Atmospheric layers -->
+
 <div class="bg-hex"></div>
+
 <div class="bg-grid"></div>
+
 <div class="bg-noise"></div>
+
 <div class="scanlines"></div>
 
+
+
 <!-- Sky: flying UAVs + missiles -->
+
 <div class="sky" aria-hidden="true">
+
   <!-- UAV 1 -->
+
   <svg class="flyer uav-1" width="180" height="80" viewBox="0 0 200 80">
+
     <defs>
+
       <linearGradient id="uavGrad" x1="0" y1="0" x2="0" y2="1">
+
         <stop offset="0" stop-color="#4a5878"/>
+
         <stop offset="1" stop-color="#1a2238"/>
+
       </linearGradient>
+
     </defs>
+
     <!-- wing top -->
+
     <polygon points="30,40 170,40 100,12" fill="#222b44"/>
+
     <polygon points="30,40 170,40 100,18" fill="url(#uavGrad)" opacity=".8"/>
+
     <!-- fuselage -->
+
     <ellipse cx="100" cy="42" rx="78" ry="5" fill="#2a3656"/>
+
     <!-- wing bottom -->
+
     <polygon points="30,44 170,44 100,68" fill="#161d2f"/>
+
     <!-- nose -->
+
     <ellipse cx="175" cy="42" rx="12" ry="4" fill="#3a4566"/>
+
     <!-- tail vertical -->
+
     <polygon points="25,30 40,30 38,46 28,46" fill="#222b44"/>
+
     <polygon points="32,28 44,28 42,42 34,42" fill="#2a3656"/>
+
     <!-- sensor pod (glowing) -->
+
     <circle cx="158" cy="46" r="4" fill="#00e5ff" opacity=".9">
+
       <animate attributeName="opacity" values="1;.3;1" dur="1.4s" repeatCount="indefinite"/>
+
     </circle>
+
     <!-- antenna -->
+
     <line x1="100" y1="40" x2="100" y2="32" stroke="#5a6585" stroke-width="1"/>
+
   </svg>
+
+
 
   <!-- UAV 2 -->
+
   <svg class="flyer uav-2" width="150" height="70" viewBox="0 0 200 80">
+
     <polygon points="30,40 170,40 100,15" fill="#1a2238"/>
+
     <ellipse cx="100" cy="42" rx="76" ry="4" fill="#2a3656"/>
+
     <polygon points="30,44 170,44 100,65" fill="#0f1626"/>
+
     <ellipse cx="175" cy="42" rx="11" ry="4" fill="#3a4566"/>
+
     <polygon points="25,30 40,30 38,46 28,46" fill="#222b44"/>
+
     <circle cx="158" cy="46" r="3.5" fill="#ffb020" opacity=".9">
+
       <animate attributeName="opacity" values="1;.3;1" dur="1.8s" repeatCount="indefinite"/>
+
     </circle>
+
   </svg>
+
+
 
   <!-- MISSILE 1 with trail -->
+
   <svg class="flyer missile-1" width="230" height="50" viewBox="0 0 230 50">
+
     <defs>
+
       <linearGradient id="trail1" x1="0" y1="0" x2="1" y2="0">
+
         <stop offset="0" stop-color="#ffb020" stop-opacity="0"/>
+
         <stop offset=".4" stop-color="#ff3860" stop-opacity=".4"/>
+
         <stop offset="1" stop-color="#ffb020" stop-opacity=".9"/>
+
       </linearGradient>
+
       <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+
         <stop offset="0" stop-color="#5a6585"/>
+
         <stop offset=".5" stop-color="#3a4566"/>
+
         <stop offset="1" stop-color="#222b44"/>
+
       </linearGradient>
+
     </defs>
+
     <ellipse cx="40" cy="25" rx="60" ry="6" fill="url(#trail1)">
+
       <animate attributeName="rx" values="60;70;60" dur=".4s" repeatCount="indefinite"/>
+
     </ellipse>
+
     <polygon points="60,20 90,25 60,30 70,25" fill="#ffb020" opacity=".9"/>
+
     <polygon points="68,22 88,25 68,28 75,25" fill="#fff" opacity=".7"/>
+
     <rect x="80" y="20" width="120" height="10" rx="2" fill="url(#bodyGrad)"/>
+
     <rect x="110" y="20" width="2" height="10" fill="#0d1220"/>
+
     <rect x="160" y="20" width="2" height="10" fill="#0d1220"/>
+
     <polygon points="200,20 220,25 200,30" fill="#5a6585"/>
+
     <polygon points="80,20 95,10 100,20" fill="#2a3656"/>
+
     <polygon points="80,30 95,40 100,30" fill="#2a3656"/>
+
     <circle cx="140" cy="25" r="2.5" fill="#ff3860"/>
+
   </svg>
+
+
 
   <!-- MISSILE 2 (smaller, distant) -->
+
   <svg class="flyer missile-2" width="180" height="40" viewBox="0 0 230 50">
+
     <ellipse cx="40" cy="25" rx="55" ry="5" fill="url(#trail1)" opacity=".7"/>
+
     <polygon points="60,21 86,25 60,29 70,25" fill="#ffb020" opacity=".75"/>
+
     <rect x="80" y="21" width="120" height="8" rx="2" fill="#3a4566"/>
+
     <polygon points="200,21 220,25 200,29" fill="#5a6585"/>
+
     <polygon points="80,21 95,12 100,21" fill="#222b44"/>
+
     <polygon points="80,29 95,38 100,29" fill="#222b44"/>
+
   </svg>
+
 </div>
+
+
 
 <!-- NAV -->
+
 <nav class="topbar">
+
   <!-- Nav Missile Animation -->
+
   <div class="nav-missile-container" aria-hidden="true">
+
     <div class="missile-body">
+
       <svg viewBox="0 0 60 15" width="60" height="15">
+
         <rect x="0" y="4" width="40" height="7" fill="#5a6585"/>
+
         <polygon points="40,4 55,7.5 40,11" fill="#ff3860"/>
+
         <polygon points="-5,0 5,7.5 -5,15" fill="#ffb020"/>
+
       </svg>
+
     </div>
+
     <div class="missile-piece">
+
       <svg viewBox="0 0 20 15" width="20" height="15">
+
         <polygon points="0,4 15,7.5 0,11" fill="#ff3860"/>
+
       </svg>
+
     </div>
+
     <div class="impact-flash"></div>
+
   </div>
+
+
 
   <div class="nav-content-wrap">
+
     <div class="brand">
+
       <div class="brand-logo">
+
         <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="1.8">
+
           <polygon points="12,2 22,7 22,17 12,22 2,17 2,7" stroke-linejoin="round"/>
+
           <polygon points="12,7 17,9.5 17,14.5 12,17 7,14.5 7,9.5" fill="#00e5ff" fill-opacity=".25" stroke="none"/>
+
           <circle cx="12" cy="12" r="1.5" fill="#00e5ff"/>
+
         </svg>
+
       </div>
+
       <div class="brand-text">
+
         <span class="brand-name">ANKIT <span>VISHNOI</span></span>
+
         <span class="brand-role">AERO-MECH ENGR // STRUCT-FEA</span>
+
       </div>
+
     </div>
+
     <div class="nav-links">
+
       <a href="#about">About</a>
+
       <a href="#capabilities">Capabilities</a>
+
       <a href="#experience">Experience</a>
+
       <a href="#education">Education</a>
+
       <a href="#projects">Projects</a>
+
       <a href="#skills">Skills</a>
+
       <a href="#certifications">Certifications</a>
+
       <a href="#research">Research</a>
+
       <a href="#contact">Contact</a>
+
     </div>
+
     <a class="hire-btn" onclick="openModal()"><span class="dot"></span> HIRE ME</a>
+
   </div>
+
 </nav>
 
+
+
 <!-- STATUS STRIP -->
+
 <div class="status-strip">
+
   <span><span class="live">SYS ONLINE</span> · LOC: 24.4539° N, 54.3773° E · ABU DHABI</span>
+
   <span id="utcclock">UTC --:--:--</span>
+
   <span>CLEARANCE: ENGINEERING-II · CALLSIGN: VISHNOI</span>
+
 </div>
+
+
 
 <div class="container">
 
+
+
 <!-- ============= HERO / ABOUT ============= -->
+
 <section id="about" class="hero">
+
   <div class="hero-left">
+
     <span class="hero-pretitle"><span class="dot"></span> SYSTEM READY · MISSION BRIEFING</span>
+
     <h1>
+
       <span class="glow">STRUCTURAL</span><br/>
+
       INTEGRITY,<br/>
+
       <span class="glow">SIMULATED.</span>
+
     </h1>
+
     <p class="hero-sub">
+
       Mechanical–Aerospace engineer with <strong style="color:var(--cyan)">4+ years</strong> in
+
       aerospace structures, composites, and additive manufacturing. Specialized in advanced FEA, vibration,
+
       fatigue &amp; damage tolerance, and end-to-end LPBF simulations for UAVs, naval canisters, and
+
       mission-critical airframe equipment.
+
     </p>
 
+
+
     <div class="hero-meta">
+
       <div class="item"><div class="k">Position</div><div class="v">Development Engineer II</div></div>
+
       <div class="item"><div class="k">Org</div><div class="v">Halcon System LLC</div></div>
+
       <div class="item"><div class="k">Sector</div><div class="v">Aerospace &amp; Defence</div></div>
+
       <div class="item"><div class="k">M.Tech</div><div class="v">IIT Bombay</div></div>
+
     </div>
+
+
 
     <div class="hero-cta">
+
       <a href="#projects" class="cta-primary"><i class="fas fa-crosshairs"></i> View Projects</a>
+
       <a href="#contact" class="cta-ghost"><i class="fas fa-satellite-dish"></i> Open Comms</a>
+
     </div>
+
   </div>
+
+
 
   <div class="hud-panel">
+
     <span class="hud-corners"></span>
+
     <span class="hud-corners-2"></span>
 
+
+
     <div class="hud-top">
+
       <span>TARGET // AV-209</span>
+
       <span class="live">TRACKING</span>
+
     </div>
+
+
 
     <div class="radar-wrap">
+
       <svg viewBox="0 0 400 400">
+
         <circle cx="200" cy="200" r="190" fill="none" stroke="#1f2940" stroke-width="1"/>
+
         <circle cx="200" cy="200" r="145" fill="none" stroke="#1f2940" stroke-width="1"/>
+
         <circle cx="200" cy="200" r="95" fill="none" stroke="#1f2940" stroke-width="1"/>
+
         <circle cx="200" cy="200" r="45" fill="none" stroke="#1f2940" stroke-width="1"/>
+
         <line x1="10" y1="200" x2="390" y2="200" stroke="#1f2940" stroke-width="1"/>
+
         <line x1="200" y1="10" x2="200" y2="390" stroke="#1f2940" stroke-width="1"/>
+
         <line x1="65" y1="65" x2="335" y2="335" stroke="#1f2940" stroke-width="1" stroke-dasharray="3,4"/>
+
         <line x1="335" y1="65" x2="65" y2="335" stroke="#1f2940" stroke-width="1" stroke-dasharray="3,4"/>
+
         <!-- ticks -->
+
         <g stroke="#2a3656" stroke-width="1">
+
           <line x1="200" y1="10" x2="200" y2="22"/>
+
           <line x1="200" y1="378" x2="200" y2="390"/>
+
           <line x1="10" y1="200" x2="22" y2="200"/>
+
           <line x1="378" y1="200" x2="390" y2="200"/>
+
         </g>
+
         <!-- coord labels -->
+
         <text x="200" y="6" text-anchor="middle" fill="#5e6a89" font-family="JetBrains Mono" font-size="10">N</text>
+
         <text x="200" y="398" text-anchor="middle" fill="#5e6a89" font-family="JetBrains Mono" font-size="10">S</text>
+
         <text x="4" y="204" fill="#5e6a89" font-family="JetBrains Mono" font-size="10">W</text>
+
         <text x="392" y="204" fill="#5e6a89" font-family="JetBrains Mono" font-size="10">E</text>
+
         <!-- contacts -->
+
         <g>
+
           <circle cx="280" cy="140" r="3" fill="#00e5ff"/>
+
           <circle cx="280" cy="140" r="8" fill="none" stroke="#00e5ff" stroke-width="1" opacity=".6">
+
             <animate attributeName="r" values="3;14;3" dur="2s" repeatCount="indefinite"/>
+
             <animate attributeName="opacity" values=".8;0;.8" dur="2s" repeatCount="indefinite"/>
+
           </circle>
+
         </g>
+
         <g>
+
           <circle cx="130" cy="260" r="3" fill="#ffb020"/>
+
           <circle cx="130" cy="260" r="8" fill="none" stroke="#ffb020" stroke-width="1" opacity=".6">
+
             <animate attributeName="r" values="3;14;3" dur="2.4s" repeatCount="indefinite"/>
+
             <animate attributeName="opacity" values=".8;0;.8" dur="2.4s" repeatCount="indefinite"/>
+
           </circle>
+
         </g>
+
         <g>
+
           <circle cx="310" cy="290" r="3" fill="#ff3860"/>
+
         </g>
+
       </svg>
+
       <div class="radar-sweep"></div>
 
+
+
       <div class="profile-frame">
+
         <!-- Changed Profile Source -->
+
         <img src="Profile.jpg" alt="Ankit Vishnoi">
+
       </div>
+
     </div>
+
+
 
     <span class="hud-readout r1">ALT 24,000 FT</span>
+
     <span class="hud-readout r2">SPD 0.84 MACH</span>
+
     <span class="hud-readout r3">θ +12.4°</span>
 
+
+
     <div class="hud-bottom">
+
       <span>SIG: <span class="val">98.2%</span></span>
+
       <span>LCK: <span class="val">3/3</span></span>
+
       <span>PWR: <span class="val">NOMINAL</span></span>
+
     </div>
+
   </div>
+
 </section>
 
+
+
 <!-- STATS -->
+
 <div class="stats">
+
   <div class="stat">
+
     <div class="num" data-target="4">0</div>
+
     <div class="lbl">Years Experience</div>
+
     <div class="id">// 001</div>
+
   </div>
+
   <div class="stat">
+
     <div class="num" data-target="20">0</div>
+
     <div class="lbl">Engineers Mentored</div>
+
     <div class="id">// 002</div>
+
   </div>
+
   <div class="stat">
+
     <div class="num" data-target="15">0</div>
+
     <div class="lbl">Major Projects</div>
+
     <div class="id">// 003</div>
+
   </div>
+
   <div class="stat">
+
     <div class="num" data-target="50">0</div>
+
     <div class="lbl">Analyses Completed</div>
+
     <div class="id">// 004</div>
+
   </div>
+
 </div>
 
+
+
 <!-- ============= CAPABILITIES ============= -->
+
 <section id="capabilities">
+
   <div class="section-label">
+
     <span class="num">01</span><span class="tag">// Module · Capabilities Matrix</span><span class="line"></span>
+
   </div>
+
   <h2 class="section-title">Technical <em>Expertise</em></h2>
+
   <p class="section-sub">Comprehensive simulation capabilities spanning structural mechanics, fluid dynamics, and multi-physics coupling — calibrated for aerospace &amp; defence applications.</p>
+
+
 
   <div class="cap-grid">
 
+
+
     <div class="cap-card">
+
       <div class="cap-img">
+
         <span class="badge">CAP·01</span>
+
         <img src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80" alt="Static Structural">
+
       </div>
+
       <div class="cap-body">
+
         <h3>Static Structural</h3>
+
         <div class="tags">
+
           <span class="tag">Linear</span><span class="tag">Non-Linear</span><span class="tag">Buckling</span><span class="tag">Fatigue Life</span><span class="tag more">+more</span>
+
         </div>
+
       </div>
+
     </div>
 
+
+
     <div class="cap-card">
+
       <div class="cap-img">
+
         <span class="badge">CAP·02</span>
+
         <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80" alt="Dynamic Analysis">
+
       </div>
+
       <div class="cap-body">
+
         <h3>Dynamic Analysis</h3>
+
         <div class="tags">
+
           <span class="tag">Modal</span><span class="tag">Harmonic</span><span class="tag">Transient</span><span class="tag">Random Vib</span><span class="tag more">+more</span>
+
         </div>
+
       </div>
+
     </div>
 
+
+
     <div class="cap-card">
+
       <div class="cap-img">
+
         <span class="badge">CAP·03</span>
+
         <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80" alt="Composite Analysis">
+
       </div>
+
       <div class="cap-body">
+
         <h3>Composite Analysis</h3>
+
         <div class="tags">
+
           <span class="tag">Laminate Theory</span><span class="tag">Failure Criteria</span><span class="tag">Delamination</span><span class="tag">Damage Tol.</span><span class="tag more">+more</span>
+
         </div>
+
       </div>
+
     </div>
 
+
+
     <div class="cap-card">
+
       <div class="cap-img">
+
         <span class="badge">CAP·04</span>
+
         <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80" alt="Structural Design">
+
       </div>
+
       <div class="cap-body">
+
         <h3>Structural Design</h3>
+
         <div class="tags">
+
           <span class="tag">CAD Modeling</span><span class="tag">Topology Opt.</span><span class="tag">Weight Reduction</span><span class="tag">Sizing</span><span class="tag more">+more</span>
+
         </div>
+
       </div>
+
     </div>
 
+
+
     <div class="cap-card">
+
       <div class="cap-img">
+
         <span class="badge">CAP·05</span>
+
         <img src="https://images.unsplash.com/photo-1559302995-f1d7e5c2db77?w=800&q=80" alt="CFD">
+
       </div>
+
       <div class="cap-body">
+
         <h3>Computational Fluid Dynamics</h3>
+
         <div class="tags">
+
           <span class="tag">Compressible</span><span class="tag">Incompressible</span><span class="tag">Steady State</span><span class="tag">Transient</span><span class="tag more">+more</span>
+
         </div>
+
       </div>
+
     </div>
 
+
+
     <div class="cap-card">
+
       <div class="cap-img">
+
         <span class="badge">CAP·06</span>
+
         <img src="https://images.unsplash.com/photo-1542652694-40abf526446e?w=800&q=80" alt="Aeroelasticity">
+
       </div>
+
       <div class="cap-body">
+
         <h3>Aeroelasticity</h3>
+
         <div class="tags">
+
           <span class="tag">1-Way Coupling</span><span class="tag">2-Way Coupling</span><span class="tag">Flutter</span><span class="tag">FSI</span><span class="tag more">+more</span>
+
         </div>
+
       </div>
+
     </div>
 
+
+
     <div class="cap-card">
+
       <div class="cap-img">
+
         <span class="badge">CAP·07</span>
+
         <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&q=80" alt="Thermal">
+
       </div>
+
       <div class="cap-body">
+
         <h3>Thermal Analysis</h3>
+
         <div class="tags">
+
           <span class="tag">Steady-State</span><span class="tag">Transient</span><span class="tag">Conduction</span><span class="tag">Convection · Radiation</span><span class="tag more">+more</span>
+
         </div>
+
       </div>
+
     </div>
 
+
+
     <div class="cap-card">
+
       <div class="cap-img">
+
         <span class="badge">CAP·08</span>
+
         <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80" alt="Additive Manufacturing">
+
       </div>
+
       <div class="cap-body">
+
         <h3>Additive Manufacturing Sim.</h3>
+
         <div class="tags">
+
           <span class="tag">LPBF Process</span><span class="tag">Calibration</span><span class="tag">DED Process</span><span class="tag">Distortion</span><span class="tag more">+more</span>
+
         </div>
+
       </div>
+
     </div>
+
+
 
   </div>
+
 </section>
 
+
+
 <!-- ============= EXPERIENCE ============= -->
+
 <section id="experience">
+
   <div class="section-label">
+
     <span class="num">02</span><span class="tag">// Module · Mission Log</span><span class="line"></span>
+
   </div>
+
   <h2 class="section-title">Professional <em>Journey</em></h2>
-  <p class="section-sub">Operational history across aerospace structural analysis, composite design, and AM simulation programs. Hover over an entry to view technical deployment details.</p>
+
+  <p class="section-sub">Operational history across aerospace structural analysis, composite design, and AM simulation programs. Hover (or tap on mobile) over an entry to view technical deployment details.</p>
+
+
 
   <div class="timeline">
 
+
+
     <div class="tl-item left">
+
       <div class="tl-card">
+
         <div class="tl-id">// MISSION 06 · ACTIVE</div>
+
         <h3>Development Engineer (Engineer II)</h3>
+
         <div class="tl-org">Halcon System LLC</div>
+
         <span class="tl-meta">Oct 2024 – Present · Abu Dhabi, UAE</span>
+
         <ul>
+
           <li>Developed a MATLAB application for composite micro–macro mechanics — stiffness matrices, stress/strain analysis, and failure criteria evaluation.</li>
+
           <li>Calculated composite fuselage thickness under various load conditions through the weapon life cycle.</li>
+
           <li>Designed &amp; simulated ASTM-standard composite test specimens in ANSYS ACP.</li>
+
           <li>Executed wing flutter analysis integrating modal &amp; CFD dynamic mesh for aerodynamic damping.</li>
+
           <li>Led linear / non-linear static FEA for major production-stream development projects.</li>
+
           <li>End-to-end LPBF additive sims in ANSYS — build prep, calibration, orientation, thermal &amp; strain.</li>
+
           <li>Applied lattice optimisation, field-driven design &amp; generative algorithms for lightweight AM components.</li>
+
           <li>Designed missile and UAV wing concepts with simulation-led optimisation.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="tl-item right">
+
       <div class="tl-card">
+
         <div class="tl-id">// MISSION 05</div>
+
         <h3>Development Engineer (Engineer I)</h3>
+
         <div class="tl-org">Halcon System LLC</div>
+
         <span class="tl-meta">Mar 2022 – Oct 2024 · Abu Dhabi, UAE</span>
+
         <ul>
+
           <li>Contributed to design of fixed-wing UAVs &amp; tube-launched munitions with autonomous loitering and 50 km target-engagement systems.</li>
+
           <li>Directed conceptual design of UAV tail-fin assemblies, pneumatic launchers, and door actuation mechanisms.</li>
+
           <li>Engineering calcs for shafts, composite laminates, fasteners, and structural components in UAV fin development.</li>
+
           <li>Led structural sims for Naval Canister development — material selection, laminate thickness &amp; ply count.</li>
+
           <li>Composite modelling in ANSYS ACP — mass optimisation, buckling, static, and motion analyses.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="tl-item left">
+
       <div class="tl-card">
+
         <div class="tl-id">// MISSION 04</div>
+
         <h3>Fatigue &amp; Damage Tolerance Intern</h3>
+
         <div class="tl-org">Umlaut Aerospace Company</div>
+
         <span class="tl-meta">Nov 2021 – Feb 2022 · Bangalore, India</span>
+
         <ul>
+
           <li>Specialized in airframe structures — A350WXB door surround components.</li>
+
           <li>Fatigue &amp; damage-tolerance (F&amp;DT) workflows incl. ISAMI.</li>
+
           <li>Static &amp; fatigue calculations — hand calcs, DFEM, ISAMI, GFEM load redistribution.</li>
+
           <li>Rätsel, fatigue-joint &amp; notch calculation in PATRAN, ISAMI, MS Excel.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="tl-item right">
+
       <div class="tl-card">
+
         <div class="tl-id">// MISSION 03</div>
+
         <h3>Mechanical Subject Expert</h3>
+
         <div class="tl-org">Chegg India Pvt. Ltd.</div>
+
         <span class="tl-meta">Apr 2021 – Oct 2021 · India</span>
+
         <ul>
+
           <li>Provided accurate, step-by-step solutions across Mechanical Engineering subjects.</li>
+
           <li>Maintained high accuracy resolving 40–50+ student queries daily.</li>
+
           <li>Strength of Materials · Machine Design · FEM · Theory of Machines · Engineering Mechanics.</li>
+
         </ul>
+
       </div>
+
     </div>
+
+
 
     <div class="tl-item left">
+
       <div class="tl-card">
+
         <div class="tl-id">// MISSION 02</div>
+
         <h3>Graduate Teaching / Research Assistant</h3>
+
         <div class="tl-org">Indian Institute of Technology, Bombay</div>
+
         <span class="tl-meta">Jul 2018 – Jun 2020 · Mumbai, India</span>
+
         <ul>
+
           <li>Delivered &amp; supervised lab sessions in Aircraft Structures and Composite Materials.</li>
+
           <li>Supported research labs with material testing experiments.</li>
+
           <li>Prepared, reviewed &amp; graded assignments, projects, and examinations.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="tl-item right">
+
       <div class="tl-card">
+
         <div class="tl-id">// MISSION 01</div>
+
         <h3>Design Intern</h3>
+
         <div class="tl-org">Hindustan Aeronautics Limited (Avionics)</div>
+
         <span class="tl-meta">Jun 2017 – Jul 2017 · Amethi, India</span>
+
         <ul>
+
           <li>Project: Terminal velocity calculation of Ejectable Flight Data Recorder (EFDR).</li>
+
           <li>Result: Terminal velocity of 21.1 m/s using MATLAB.</li>
+
           <li>Analysed design layout and working mechanism of EFDR and its instruments.</li>
+
         </ul>
+
       </div>
+
     </div>
+
+
 
   </div>
+
 </section>
+
+
 
 <!-- ============= EDUCATION ============= -->
+
 <section id="education">
+
   <div class="section-label">
+
     <span class="num">03</span><span class="tag">// Module · Academic Record</span><span class="line"></span>
+
   </div>
+
   <h2 class="section-title">Academic <em>Background</em></h2>
+
   <p class="section-sub">A strong foundation in aerospace structures, mechanical analysis, and engineering fundamentals.</p>
 
+
+
   <div class="edu-grid">
+
     <div class="edu-node">
+
       <div class="edu-circle">M.T</div>
+
       <div class="edu-card">
+
         <div class="lvl">// LEVEL · POSTGRADUATE</div>
+
         <h3>Master of Technology</h3>
+
         <div class="field">Aerospace Structures</div>
+
         <div class="inst">Indian Institute of Technology, Bombay</div>
+
         <span class="yr">2018 – 2020</span>
+
       </div>
+
     </div>
 
+
+
     <div class="edu-node">
+
       <div class="edu-circle">B.T</div>
+
       <div class="edu-card">
+
         <div class="lvl">// LEVEL · UNDERGRADUATE</div>
+
         <h3>Bachelor of Technology</h3>
+
         <div class="field">Aeronautical Engineering</div>
+
         <div class="inst">Dr. A. P. J. Abdul Kalam Technical University</div>
+
         <span class="yr">2014 – 2018</span>
+
       </div>
+
     </div>
 
+
+
     <div class="edu-node">
+
       <div class="edu-circle">XII</div>
+
       <div class="edu-card">
+
         <div class="lvl">// LEVEL · SECONDARY</div>
+
         <h3>Matriculation &amp; Intermediate</h3>
+
         <div class="field">Science / Academics</div>
+
         <div class="inst">Jawahar Navodaya Vidyalaya Samiti, Lucknow</div>
+
         <span class="yr">2010 – 2013</span>
+
       </div>
+
     </div>
+
   </div>
+
 </section>
 
+
+
 <!-- ============= PROJECTS ============= -->
+
 <section id="projects">
+
   <div class="section-label">
+
     <span class="num">04</span><span class="tag">// Module · Engineering Portfolio</span><span class="line"></span>
+
   </div>
+
   <h2 class="section-title">Selected <em>Projects</em></h2>
+
   <p class="section-sub">Complex structural analyses, mechanical design, and computational simulations from academic and applied research.</p>
+
+
 
   <div class="proj-grid">
 
+
+
     <div class="proj-card">
+
       <div class="carousel" id="car1">
+
         <span class="car-num">01 / 02</span>
+
         <div class="slide active"><img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&q=80" alt="Ni Superalloy"></div>
+
         <div class="slide"><img src="https://images.unsplash.com/photo-1581094271901-8022df4466f9?w=800&q=80" alt="Ni Superalloy"></div>
+
         <button class="car-btn prev" onclick="changeSlide(-1,'car1')">‹</button>
+
         <button class="car-btn next" onclick="changeSlide(1,'car1')">›</button>
+
       </div>
+
       <div class="proj-body">
+
         <h3>Ni-Based Superalloys Deformation Framework</h3>
+
         <div class="tags">
+
           <span class="tag">M.Tech · IIT Bombay</span><span class="tag">Abaqus UMAT</span>
+
         </div>
+
         <ul>
+
           <li>Developed single-crystal plasticity microstructural creep/fatigue model via UMAT interface in ABAQUS.</li>
+
           <li>Implicit time integration with Newton's methods.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="proj-card">
+
       <div class="carousel" id="car2">
+
         <span class="car-num">01 / 02</span>
+
         <div class="slide active"><img src="https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=800&q=80" alt="XB-47"></div>
+
         <div class="slide"><img src="https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=800&q=80" alt="XB-47"></div>
+
         <button class="car-btn prev" onclick="changeSlide(-1,'car2')">‹</button>
+
         <button class="car-btn next" onclick="changeSlide(1,'car2')">›</button>
+
       </div>
+
       <div class="proj-body">
+
         <h3>Aeroelastic &amp; Divergence Analysis · XB-47</h3>
+
         <div class="tags">
+
           <span class="tag">Aeroelasticity</span><span class="tag">MATLAB</span>
+
         </div>
+
         <ul>
+
           <li>Calculated aeroelastic response along the tapered swept-back wing using the Galerkin method.</li>
+
           <li>Encapsulated full formulation in MATLAB across multiple flight conditions.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="proj-card">
+
       <div class="carousel" id="car3">
+
         <span class="car-num">01 / 02</span>
+
         <div class="slide active"><img src="https://images.unsplash.com/photo-1457366847795-c40d72c4eee0?w=800&q=80" alt="Stealth"></div>
+
         <div class="slide"><img src="https://images.unsplash.com/photo-1517976547714-720226b864c1?w=800&q=80" alt="Stealth"></div>
+
         <button class="car-btn prev" onclick="changeSlide(-1,'car3')">‹</button>
+
         <button class="car-btn next" onclick="changeSlide(1,'car3')">›</button>
+
       </div>
+
       <div class="proj-body">
+
         <h3>Stealth Technology in Aerospace</h3>
+
         <div class="tags">
+
           <span class="tag">M.Tech Seminar</span><span class="tag">RADAR / RCS</span>
+
         </div>
+
         <ul>
+
           <li>Comprehensive study of RADAR systems, RCS, RAM, and electronic warfare.</li>
+
           <li>Developed understanding of air superiority, RADAR signatures and RCS-reduction techniques.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="proj-card">
+
       <div class="carousel" id="car4">
+
         <span class="car-num">01 / 02</span>
+
         <div class="slide active"><img src="https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&q=80" alt="Tiltwing"></div>
+
         <div class="slide"><img src="https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&q=80" alt="Tiltwing"></div>
+
         <button class="car-btn prev" onclick="changeSlide(-1,'car4')">‹</button>
+
         <button class="car-btn next" onclick="changeSlide(1,'car4')">›</button>
+
       </div>
+
       <div class="proj-body">
+
         <h3>Optimal Design · Tiltwing RC Aircraft</h3>
+
         <div class="tags">
+
           <span class="tag">B.Tech Project</span><span class="tag">Python</span><span class="tag">AutoCAD</span>
+
         </div>
+
         <ul>
+
           <li>3D model with NACA 66(3)-418 airfoil &amp; tiltwing mechanism in AutoCAD.</li>
+
           <li>Performance parameters via Python — Helicopter, Transition, Cruise modes demonstrated.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="proj-card">
+
       <div class="carousel" id="car5">
+
         <span class="car-num">01 / 02</span>
+
         <div class="slide active"><img src="https://images.unsplash.com/photo-1605007493699-af65834f8a00?w=800&q=80" alt="Composite Laminates"></div>
+
         <div class="slide"><img src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?w=800&q=80" alt="Composite Laminates"></div>
+
         <button class="car-btn prev" onclick="changeSlide(-1,'car5')">‹</button>
+
         <button class="car-btn next" onclick="changeSlide(1,'car5')">›</button>
+
       </div>
+
       <div class="proj-body">
+
         <h3>Failure Analysis of Composite Laminates</h3>
+
         <div class="tags">
+
           <span class="tag">Composite Project</span><span class="tag">Excel VBA</span>
+
         </div>
+
         <ul>
+
           <li>CLPT-based tool in Excel/VBA for stiffness matrix &amp; first failure ply.</li>
+
           <li>Thermal loads &amp; displacements via max stress/strain, Tsai-Hill, Tsai-Wu criteria.</li>
+
         </ul>
+
       </div>
+
     </div>
 
+
+
     <div class="proj-card">
+
       <div class="carousel" id="car6">
+
         <span class="car-num">01 / 02</span>
+
         <div class="slide active"><img src="https://images.unsplash.com/photo-1495063367257-05bbcf871fac?w=800&q=80" alt="Aircraft Performance"></div>
+
         <div class="slide"><img src="https://images.unsplash.com/photo-1569629743817-70d8db6c323b?w=800&q=80" alt="Aircraft Performance"></div>
+
         <button class="car-btn prev" onclick="changeSlide(-1,'car6')">‹</button>
+
         <button class="car-btn next" onclick="changeSlide(1,'car6')">›</button>
+
       </div>
+
       <div class="proj-body">
+
         <h3>Aircraft Performance Study</h3>
+
         <div class="tags">
+
           <span class="tag">Excel VBA</span><span class="tag">Performance</span>
+
         </div>
+
         <ul>
+
           <li>Excel/VBA tool for CP-1 Piston-Prop &amp; CJ-1 Turbo-fan performance parameters.</li>
+
           <li>Validated against standard results — strong performance-design fundamentals.</li>
+
         </ul>
+
       </div>
+
     </div>
+
+
 
   </div>
+
 </section>
+
+
 
 <!-- ============= SKILLS ============= -->
+
 <section id="skills">
+
   <div class="section-label">
+
     <span class="num">05</span><span class="tag">// Module · Loadout</span><span class="line"></span>
+
   </div>
+
   <h2 class="section-title">Core <em>Competencies</em></h2>
+
   <p class="section-sub">Comprehensive overview of software proficiencies and engineering techniques.</p>
 
+
+
   <div class="skill-grid">
+
     <div class="skill-card">
+
       <h3><i class="fas fa-microchip"></i> FEA &amp; Simulation</h3>
+
       <div class="tags">
+
         <span class="tag">Ansys Mechanical &amp; APDL</span>
+
         <span class="tag">Ansys ACP</span>
+
         <span class="tag">Ansys Additive Suite</span>
+
         <span class="tag">LS-Dyna</span>
+
         <span class="tag">Ansys Motion</span>
+
         <span class="tag">Abaqus &amp; Patran</span>
+
       </div>
+
     </div>
+
     <div class="skill-card">
+
       <h3><i class="fas fa-cube"></i> CAD Tools</h3>
+
       <div class="tags">
+
         <span class="tag">SolidWorks</span>
+
         <span class="tag">Ansys SpaceClaim</span>
+
         <span class="tag">PTC Creo Parametric</span>
+
         <span class="tag">Autodesk AutoCAD</span>
+
       </div>
+
     </div>
+
     <div class="skill-card">
+
       <h3><i class="fas fa-code"></i> Programming &amp; Scripting</h3>
+
       <div class="tags">
+
         <span class="tag">C</span>
+
         <span class="tag">Python</span>
+
         <span class="tag">Fortran</span>
+
         <span class="tag">VBA</span>
+
         <span class="tag">MATLAB App Dev</span>
+
         <span class="tag">MATLAB GUI</span>
+
       </div>
+
     </div>
+
     <div class="skill-card">
+
       <h3><i class="fas fa-toolbox"></i> Other Software &amp; Office</h3>
+
       <div class="tags">
+
         <span class="tag">Excel · Word · PPT</span>
+
         <span class="tag">LaTeX</span>
+
         <span class="tag">Origin Pro</span>
+
         <span class="tag">Maple</span>
+
         <span class="tag">PTC Mathcad</span>
+
         <span class="tag">Project Mgmt</span>
+
       </div>
+
     </div>
+
   </div>
+
 </section>
+
+
 
 <!-- ============= CERTIFICATIONS ============= -->
+
 <section id="certifications">
+
   <div class="section-label">
+
     <span class="num">06</span><span class="tag">// Module · Certifications &amp; Training</span><span class="line"></span>
+
   </div>
+
   <h2 class="section-title">Continuous <em>Learning</em></h2>
+
   <p class="section-sub">Professional developments driving advanced engineering and project execution.</p>
 
+
+
   <div class="cert-grid">
+
     <div class="cert-card">
+
       <h3><i class="fas fa-award"></i> ANSYS Official Training</h3>
+
       <ul class="cert-list">
+
         <li><strong>ANSYS Composite (ACP pre &amp; post)</strong></li>
+
         <li><strong>ANSYS Additive Simulations</strong></li>
+
         <li><strong>ANSYS Laser Powder Bed Fusion Analysis</strong></li>
+
         <li><strong>Ansys LS-Dyna &amp; Explicit</strong></li>
+
         <li><strong>ANSYS Non-linear Analysis</strong></li>
+
         <li><strong>ANSYS Modal &amp; Vibration</strong></li>
+
         <li><strong>ANSYS Motion &amp; Transient Analysis</strong></li>
+
         <li><strong>ANSYS Advanced Material Modelling</strong></li>
+
         <li><strong>Design &amp; Modelling Adhesives using ANSYS</strong></li>
+
         <li><strong>Introduction to ANSYS Mechanical &amp; SpaceClaim</strong></li>
+
       </ul>
+
     </div>
+
     <div class="cert-card">
+
       <h3><i class="fas fa-certificate"></i> Systems &amp; Specializations</h3>
+
       <ul class="cert-list">
+
         <li><strong>Google Project Management</strong><span>Professional Certificate</span></li>
+
         <li><strong>Introduction to Systems Engineering</strong><span>Specialization</span></li>
+
         <li><strong>Fundamentals of Flight Mechanics</strong><span>Specialization</span></li>
+
         <li><strong>Autonomous Aerospace Systems</strong></li>
+
         <li><strong>Simcenter Ground Vibration Testing Masterclass</strong></li>
+
         <li><strong>Integrated Computational Materials Engineering (ICME) for Metals</strong></li>
+
         <li><strong>Geometric Dimensioning &amp; Tolerancing (GD&amp;T)</strong></li>
+
         <li><strong>Configuration Management</strong></li>
+
       </ul>
+
     </div>
+
   </div>
+
 </section>
+
+
 
 <!-- ============= RESEARCH ============= -->
+
 <section id="research">
+
   <div class="section-label">
+
     <span class="num">07</span><span class="tag">// Module · Research Output</span><span class="line"></span>
+
   </div>
+
   <h2 class="section-title">Academic <em>Contributions</em></h2>
+
   <p class="section-sub">Peer-reviewed publications detailing advanced analysis in propulsion and combustion dynamics.</p>
 
+
+
   <div class="research-grid">
+
     <div class="research-card">
+
       <div class="ico"><i class="fas fa-book-open"></i></div>
+
       <h3>Analysis for a self-sustainable mini gas turbine engine for domestic purposes</h3>
+
       <div class="journal">International Journal of Technical Innovation in Modern Engineering &amp; Science</div>
+
     </div>
+
     <div class="research-card">
+
       <div class="ico"><i class="fas fa-fire"></i></div>
+
       <h3>Effect of Global Acceleration in the Acoustic Response of Premixed Flame and Analysis of Acoustic Instability of Combustion Chamber</h3>
+
       <div class="journal">International Journal of Technical Innovation in Modern Engineering &amp; Science</div>
+
     </div>
+
   </div>
+
 </section>
+
+
 
 <!-- ============= CONTACT ============= -->
+
 <section id="contact">
+
   <div class="section-label">
+
     <span class="num">08</span><span class="tag">// Module · Comms Channel</span><span class="line"></span>
+
   </div>
+
+
 
   <div class="contact-wrap">
+
     <div class="contact-header">
+
       <span class="term"><span class="dot"></span> CHANNEL OPEN · STANDING BY</span>
+
       <h2>Let's <em style="color:var(--cyan);font-style:normal">Collaborate</em></h2>
+
       <p>Have a challenging aerospace engineering project? Let's discuss how advanced simulation can accelerate your development.</p>
+
     </div>
+
+
 
     <div class="contact-info">
+
       <div class="ci">
+
         <i class="fas fa-phone-alt"></i>
+
         <div class="lbl">UAE Line</div>
+
         <div class="val"><a href="tel:+971507014883">+971 50 701 4883</a></div>
+
       </div>
+
       <div class="ci">
+
         <i class="fas fa-mobile-alt"></i>
+
         <div class="lbl">India Line</div>
+
         <div class="val"><a href="tel:+917351975515">+91 735 197 5515</a></div>
+
       </div>
+
       <div class="ci">
+
         <i class="fas fa-envelope"></i>
+
         <div class="lbl">Email</div>
+
         <div class="val"><a href="mailto:ankit209ee@gmail.com">ankit209ee@gmail.com</a></div>
+
       </div>
+
       <div class="ci">
+
         <i class="fas fa-map-marker-alt"></i>
+
         <div class="lbl">Operating Region</div>
+
         <div class="val">Abu Dhabi, UAE · India</div>
+
       </div>
+
     </div>
+
+
 
     <div class="social">
+
       <a href="https://linkedin.com/in/ankit-vishnoi" class="logo-linkedin" target="_blank" rel="noopener" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+
       <a href="https://github.com/" class="logo-github" target="_blank" rel="noopener" title="GitHub"><i class="fab fa-github"></i></a>
+
       <a href="mailto:ankit209ee@gmail.com" class="logo-email" title="Email"><i class="fas fa-envelope"></i></a>
+
       <a href="tel:+971507014883" class="logo-phone" title="Call"><i class="fas fa-phone"></i></a>
+
     </div>
 
+
+
     <div class="download-btn">
+
       <a href="Ankit_Vishnoi_Resume.pdf" download><i class="fas fa-file-download"></i> Download Resume</a>
+
     </div>
+
   </div>
+
 </section>
+
+
 
 </div><!-- /container -->
 
+
+
 <footer>
+
   © 2026 ANKIT VISHNOI · ALL SYSTEMS NOMINAL · BUILD <span class="br">v2.6 / AV-209</span>
+
 </footer>
 
+
+
 <!-- MODAL -->
+
 <div class="modal" id="hireMeModal">
+
   <div class="modal-box">
+
     <button class="modal-close" onclick="closeModal()">&times;</button>
+
     <div class="sub">// Open Comms · Hire Channel</div>
+
     <h2>Let's Get In Touch</h2>
+
     <p>I'm currently available for full-time roles and consultations in aerospace structural analysis, FEA, composites, and additive manufacturing simulation.</p>
 
+
+
     <div class="contact-info" style="grid-template-columns:1fr;">
+
       <div class="ci">
+
         <i class="fas fa-envelope"></i>
+
         <div class="lbl">Email</div>
+
         <div class="val"><a href="mailto:ankit209ee@gmail.com">ankit209ee@gmail.com</a></div>
+
       </div>
+
       <div class="ci">
+
         <i class="fas fa-phone-alt"></i>
+
         <div class="lbl">Phone</div>
+
         <div class="val">
+
           UAE: <a href="tel:+971507014883">+971 50 701 4883</a><br>
+
           India: <a href="tel:+917351975515">+91 735 197 5515</a>
+
         </div>
+
       </div>
+
     </div>
+
+
 
     <div class="social" style="margin-top:8px;">
+
       <a href="https://linkedin.com/in/ankit-vishnoi" class="logo-linkedin" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
+
       <a href="https://github.com/" class="logo-github" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+
     </div>
+
   </div>
+
 </div>
 
+
+
 <script>
+
 /* ----- Carousels ----- */
+
 function changeSlide(dir, id){
+
   const root = document.getElementById(id);
+
   const slides = root.querySelectorAll('.slide');
+
   const counter = root.querySelector('.car-num');
+
   let i = 0;
+
   slides.forEach((s,idx)=>{ if(s.classList.contains('active')){ i = idx; s.classList.remove('active'); }});
+
   i = (i + dir + slides.length) % slides.length;
+
   slides[i].classList.add('active');
+
   if(counter){ counter.textContent = String(i+1).padStart(2,'0') + ' / ' + String(slides.length).padStart(2,'0'); }
+
 }
+
+
 
 /* ----- Modal ----- */
+
 function openModal(){ document.getElementById('hireMeModal').classList.add('show'); }
+
 function closeModal(){ document.getElementById('hireMeModal').classList.remove('show'); }
+
 window.addEventListener('click', e => {
+
   const m = document.getElementById('hireMeModal');
+
   if(e.target === m) closeModal();
+
 });
+
 window.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
 
+
+
 /* ----- UTC Clock ----- */
+
 function tickClock(){
+
   const d = new Date();
+
   const hh = String(d.getUTCHours()).padStart(2,'0');
+
   const mm = String(d.getUTCMinutes()).padStart(2,'0');
+
   const ss = String(d.getUTCSeconds()).padStart(2,'0');
+
   const el = document.getElementById('utcclock');
+
   if(el) el.textContent = `UTC ${hh}:${mm}:${ss}`;
+
 }
+
 setInterval(tickClock, 1000); tickClock();
 
+
+
 /* ----- Animated stat counters ----- */
+
 const counted = new WeakSet();
+
 const io = new IntersectionObserver(entries => {
+
   entries.forEach(en => {
+
     if(en.isIntersecting && !counted.has(en.target)){
+
       counted.add(en.target);
+
       const target = +en.target.getAttribute('data-target');
+
       const dur = 1400;
+
       const start = performance.now();
+
       function step(t){
+
         const p = Math.min(1, (t - start)/dur);
+
         const eased = 1 - Math.pow(1-p, 3);
+
         en.target.textContent = Math.floor(target * eased) + (p===1 ? '+' : '');
+
         if(p < 1) requestAnimationFrame(step);
+
       }
+
       requestAnimationFrame(step);
+
     }
+
   });
+
 }, {threshold:.4});
+
 document.querySelectorAll('.stat .num').forEach(el => io.observe(el));
 
+
+
 /* ----- Particle field (subtle) ----- */
+
 (function(){
+
   const sky = document.querySelector('.sky');
+
   for(let i=0;i<22;i++){
+
     const p = document.createElement('span');
+
     p.className = 'particle';
+
     p.style.top = Math.random()*100 + '%';
+
     p.style.left = Math.random()*100 + '%';
+
     p.style.opacity = (.2 + Math.random()*.5).toFixed(2);
+
     p.style.animation = `pulse ${(1.6 + Math.random()*2.4).toFixed(2)}s infinite`;
+
     p.style.animationDelay = `-${(Math.random()*3).toFixed(2)}s`;
+
     sky.appendChild(p);
+
   }
+
 })();
+
+
+
+/* ----- Timeline tap-to-expand on touch devices (hover doesn't exist on mobile) ----- */
+
+(function(){
+
+  const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+  if(!isTouch) return;
+
+  document.querySelectorAll('.tl-card').forEach(card => {
+
+    card.addEventListener('click', () => {
+
+      // Close other open cards so only one expands at a time on small screens
+
+      document.querySelectorAll('.tl-card.open').forEach(c => { if(c !== card) c.classList.remove('open'); });
+
+      card.classList.toggle('open');
+
+    });
+
+  });
+
+})();
+
 </script>
+
 </body>
+
 </html>
